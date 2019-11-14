@@ -23,7 +23,6 @@
 .project
 .classpath
 .settings/
-bin/
 
 # IntelliJ
 .idea

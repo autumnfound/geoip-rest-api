@@ -6,6 +6,8 @@
  */
 package org.eclipsefoundation.geoip.client.resources;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -51,6 +53,10 @@ public class CityResource {
 					.asResponse();
 		}
 		// return city data
-		return Response.ok(c).build();
+		try {
+			return Response.ok(c.toJson()).build();
+		} catch (IOException e) {
+			throw new RuntimeException("Error while converting city record to JSON", e);
+		}
 	}
 }

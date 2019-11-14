@@ -8,10 +8,13 @@ package org.eclipsefoundation.geoip.client.model;
 
 import java.sql.JDBCType;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
 /**
  * @author Martin Lowe
  *
  */
+@RegisterForReflection
 public class ParameterizedSQLStatement {
 
 	private String sql;
