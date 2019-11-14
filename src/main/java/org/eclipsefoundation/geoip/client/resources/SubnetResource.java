@@ -6,10 +6,6 @@
  */
 package org.eclipsefoundation.geoip.client.resources;
 
-import java.sql.JDBCType;
-import java.sql.SQLException;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,8 +16,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.eclipsefoundation.geoip.client.dao.MariaDBDao;
-import org.eclipsefoundation.geoip.client.model.ParameterizedSQLStatement;
+import org.eclipsefoundation.geoip.client.model.IPVersion;
+import org.eclipsefoundation.geoip.client.service.NetworkService;
 
 /**
  * Provides subnets for given country codes, in both ipv4 and ipv6 formats upon
@@ -34,7 +30,7 @@ import org.eclipsefoundation.geoip.client.model.ParameterizedSQLStatement;
 public class SubnetResource {
 
 	@Inject
-	MariaDBDao dao;
+	NetworkService networks;
 
 	@Context
 	UriInfo uriInfo;
@@ -42,30 +38,6 @@ public class SubnetResource {
 	@GET
 	@Path("/{ipv: (ipv[46])}/{isoLocale: ([a-zA-Z]{2})}")
 	public Response get(@PathParam("isoLocale") String isoLocale, @PathParam("ipv") String ipVersion) {
-		// check the ipversion in the URI string to find table name
-		String ipTableName;
-		if ("ipv4".equals(ipVersion)) {
-			ipTableName = "country_blocks_ipv4";
-		} else {
-			ipTableName = "country_blocks_ipv6";
-		}
-		// build a parameterized statement to pass to DAO for query
-		ParameterizedSQLStatement stmt = new ParameterizedSQLStatement("SELECT network FROM " + ipTableName
-				+ " b JOIN countries c ON (b.geoname_id = c.geoname_id OR b.registered_country_geoname_id = c.geoname_id) "
-				+ "WHERE country_iso_code = ?", new Object[] { isoLocale }, new JDBCType[] { JDBCType.VARCHAR });
-
-		// get the results
-		try {
-			List<String> results = dao.get(stmt, rs -> {
-				try {
-					return rs.getString("network");
-				} catch (SQLException e) {
-					throw new RuntimeException(e);
-				}
-			});
-			return Response.ok(results).build();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+		return Response.ok(networks.getSubnets(isoLocale, IPVersion.getByName(ipVersion))).build();
 	}
 }
