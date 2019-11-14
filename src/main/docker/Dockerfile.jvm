@@ -15,7 +15,15 @@
 #
 ###
 FROM fabric8/java-alpine-openjdk8-jre
-ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+# we need the following commands to run script
+RUN apk add wget unzip tar findutils gzip
+
+WORKDIR /deployments/scripts
+COPY bin/maxmind.sh /deployments/scripts
+RUN chmod +x ./maxmind.sh
+RUN ./maxmind.sh /tmp
+
+ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Xmx256m"
 ENV AB_ENABLED=jmx_exporter
 COPY target/lib/* /deployments/lib/
 COPY target/*-runner.jar /deployments/app.jar
