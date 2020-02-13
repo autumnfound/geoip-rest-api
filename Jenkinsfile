@@ -111,12 +111,12 @@
       stage('Build Java code') {
         steps {
           container('buildpack') {
-            sh './bin/maxmind.sh /tmp/'
+            sh 'mkdir -p /tmp/maxmind && ./bin/maxmind.sh /tmp/maxmind'
           }
           sh './mvnw -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --batch-mode package'
           stash includes: 'target/', name: 'target'
           dir('/tmp') {
-            stash includes: 'db/', name: 'maxmind'
+            stash includes: 'maxmind/', name: 'maxmind'
           }
         }
       }
