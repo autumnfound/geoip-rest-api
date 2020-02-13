@@ -113,8 +113,11 @@
           container('buildpack') {
             sh './bin/maxmind.sh /tmp/'
           }
-          sh './mvnw package'
-            stash includes: 'target/', name: 'target'
+          sh './mvnw -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --batch-mode package'
+          stash includes: 'target/', name: 'target'
+          dir('/tmp') {
+            stash includes: 'db/', name: 'maxmind'
+          }
         }
       }
 
@@ -124,9 +127,9 @@
         }
         steps {
           unstash 'target'
-          sh '''
-             docker build -f src/main/docker/Dockerfile.jvm --no-cache -t ${IMAGE_NAME}:${TAG_NAME} -t ${IMAGE_NAME}:latest .
-          '''
+          unstash 'maxmind'
+
+          sh 'docker build -f src/main/docker/Dockerfile.jvm --no-cache -t ${IMAGE_NAME}:${TAG_NAME} -t ${IMAGE_NAME}:latest .'
         }
       }
 
