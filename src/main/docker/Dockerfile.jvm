@@ -14,22 +14,11 @@
 # docker run -i --rm -p 8080:8080 -v <fullpath to dir>/secrets:/run/secrets quarkus/geoip-client-jvm
 #
 ###
-FROM debian:stable-slim AS maxmind-builder
-
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
-  ca-certificates \
-  curl \
-  unzip
-
-COPY bin/maxmind.sh /workdir/
-RUN /workdir/maxmind.sh /tmp/maxmind
-
 FROM fabric8/java-alpine-openjdk8-jre
 
 WORKDIR /deployments/scripts
 
-COPY --from=maxmind-builder /tmp/maxmind /maxmind
+COPY db/* /maxmind/
 
 ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 \
 -Djava.util.logging.manager=org.jboss.logmanager.LogManager \
