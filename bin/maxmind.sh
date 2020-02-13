@@ -24,9 +24,9 @@ if [ -z "${1}" ]; then
 fi
 
 ## retrieve license key
-LICENSE_KEY=$(cat /run/secrets/license_key)
+LICENSE_KEY=$(cat ${LICENSE_KEY_FILE:-/run/secrets/license_key})
 if [ -z "$LICENSE_KEY" ]; then
-  echo "Could not find a license key in /run/secrets"
+  echo "Could not find a license key in ${LICENSE_KEY_FILE:-/run/secrets/license_key}"
   exit 1
 fi
 
