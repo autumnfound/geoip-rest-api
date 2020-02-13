@@ -3,5 +3,5 @@
 !target/*-runner.jar
 !target/lib/*
 !bin/
-!db/
+!maxmind/
 !reflection-config.json
